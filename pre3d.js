@@ -776,7 +776,7 @@ Pre3d = (function() {
       // this seems to look ok, following the eye from the origin.  We look
       // at the normals of the triangulated quad, and make sure at least one
       // is point towards the camera...
-      if (!draw_backfaces &&
+      if (draw_backfaces !== true &&
           dotProduct3d(centroid, n1) > 0 &&
           dotProduct3d(centroid, n2) > 0) {
         continue;
@@ -792,7 +792,7 @@ Pre3d = (function() {
       // with the actual points.
       var world_qf;
 
-      if (qf.isTriangle()) {
+      if (qf.isTriangle() === true) {
         world_qf = new QuadFace(
           world_vertices[qf.i0],
           world_vertices[qf.i1],
@@ -851,7 +851,7 @@ Pre3d = (function() {
     // Sort the quads by z-index for painters algorithm :(
     // We're looking down the z-axis in the negative direction, so we want
     // to paint the most negative z quads first.
-    if (this.perform_z_sorting)
+    if (this.perform_z_sorting === true)
       all_quads.sort(zSorter);
 
     for (var j = 0; j < num_quads; ++j) {
@@ -862,7 +862,7 @@ Pre3d = (function() {
 
       var is_triangle = qf.isTriangle();
 
-      if (obj.draw_overdraw) {
+      if (obj.draw_overdraw === true) {
         // Unfortunately when we fill with canvas, we can get some gap looking
         // things on the edges between quads.  One possible solution is to
         // stroke the path, but this turns out to be really expensive.  Instead
@@ -874,7 +874,7 @@ Pre3d = (function() {
 
         pushPoints2dIP(qf.i0, qf.i1);
         pushPoints2dIP(qf.i1, qf.i2);
-        if (is_triangle) {
+        if (is_triangle === true) {
           pushPoints2dIP(qf.i2, qf.i0);
         } else {  // Quad.
           pushPoints2dIP(qf.i2, qf.i3);
@@ -887,13 +887,13 @@ Pre3d = (function() {
       ctx.moveTo(qf.i0.x, qf.i0.y);
       ctx.lineTo(qf.i1.x, qf.i1.y);
       ctx.lineTo(qf.i2.x, qf.i2.y);
-      if (!is_triangle)
+      if (is_triangle !== true)
         ctx.lineTo(qf.i3.x, qf.i3.y);
       // Don't bother closing it unless we need to.
 
       // Fill...
       var frgba = obj.fill_rgba;
-      if (frgba) {
+      if (frgba !== null) {
         var iy = obj.intensity;
         ctx.setFillColor(frgba.r * iy, frgba.g * iy, frgba.b * iy, frgba.a);
         ctx.fill();
@@ -916,7 +916,7 @@ Pre3d = (function() {
 
       // Stroke...
       var srgba = obj.stroke_rgba;
-      if (srgba) {
+      if (srgba !== null) {
         ctx.closePath();
         ctx.setStrokeColor(srgba.r, srgba.g, srgba.b, srgba.a);
         ctx.stroke();
@@ -925,7 +925,7 @@ Pre3d = (function() {
       // Normal lines (stroke)...
       var n1r = obj.normal1_rgba;
       var n2r = obj.normal2_rgba;
-      if (n1r) {
+      if (n1r !== null) {
         ctx.setStrokeColor(n1r.r, n1r.g, n1r.b, n1r.a);
         ctx.beginPath();
         makeCanvasPath(ctx, this.projectPointsToCanvas([
@@ -933,7 +933,7 @@ Pre3d = (function() {
               addPoints3d(qf.centroid, unitVector3d(qf.normal2))]));
         ctx.stroke();
       }
-      if (n2r) {
+      if (n2r !== null) {
         ctx.setStrokeColor(n2r.r, n2r.g, n2r.b, n2r.a);
         ctx.beginPath();
         makeCanvasPath(ctx, this.projectPointsToCanvas([
