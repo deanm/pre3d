@@ -1,0 +1,54 @@
+<html>
+
+<head>
+
+<title>A 3d demo in JavaScript</title>
+
+<style>
+  body * {
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+  body.white {
+    background-color: white;
+    color: black;
+  }
+  body.black {
+    background-color: black;
+    color: white;
+  }
+  span.spaceyspan { margin-right: 20px; }
+  div.centeredDiv { text-align: center; }
+  li { list-style: none; }
+  td { padding-right: 10px; }
+</style>
+
+<script src="../pre3d.js"></script>
+<script src="../pre3d_shape_utils.js"></script>
+<script src="demo_utils.js"></script>
+<script src="colorscube.js"></script>
+</head>
+
+<body class="black">
+
+<div class="centeredDiv">
+<canvas id="canvas" width="800" height="600">
+  Sorry, this demo requires a web browser which supports HTML5 canvas!
+</canvas>
+</div>
+
+<p>
+JavaScript software 3d renderer &nbsp; &copy 2009 Dean McNamee (dean at gmail)
+</p>
+
+<table>
+<tr><td>Press t</td><td>&rarr;</td><td>toggle background color</td></tr>
+<tr><td>Press p</td><td>&rarr;</td><td>pause</td></tr>
+<tr><td>Mouse</td><td>&rarr;</td><td>rotate around origin x and y axis</td></tr>
+<tr><td>Mouse + ctrl</td><td>&rarr;</td><td>pan x / y</td></tr>
+<tr><td>Mouse + shift</td><td>&rarr;</td><td>pan z</td></tr>
+<tr><td>Mouse + ctrl + shift</td><td>&rarr;</td><td>adjust focal length</td></tr>
+</table>
+
+</body>
+</html>
