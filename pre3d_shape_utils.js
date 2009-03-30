@@ -101,6 +101,26 @@ Pre3d.ShapeUtils = (function() {
     }
   }
 
+  // Convert any quad faces into two triangle faces.  After triangulation,
+  // |shape| should only consist of triangles.
+  function triangulate(shape) {
+    var quads = shape.quads;
+    var num_quads = quads.length;
+    for (var i = 0; i < num_quads; ++i) {
+      var qf = quads[i];
+      if (qf.isTriangle())
+        continue;
+
+      // TODO(deanm): Should we follow some clockwise rule here?
+      var newtri = new Pre3d.QuadFace(qf.i0, qf.i2, qf.i3, null);
+      // Convert the original quad into a triangle.
+      qf.i3 = null;
+      // Add the new triangle to the list of faces.
+      quads.push(newtri);
+    }
+    rebuildMeta(shape);
+  }
+
   // Call |func| for each face of |shape|.  The callback |func| should return
   // false to continue iteration, or true to stop.  For example:
   //   forEachFace(shape, function(quad_face, quad_index, shape) {
@@ -648,6 +668,7 @@ Pre3d.ShapeUtils = (function() {
 
   return {
     rebuildMeta: rebuildMeta,
+    triangulate: triangulate,
     forEachFace: forEachFace,
 
     makePlane: makePlane,
