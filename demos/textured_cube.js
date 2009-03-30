@@ -5,23 +5,39 @@ function start3d(texture_image) {
   var renderer = new Pre3d.Renderer(screen_canvas);
 
   var cube = Pre3d.ShapeUtils.makeCube(1);
+  // Avoid anti-aliasing cracks along quad faces.  We convert to triangles so
+  // that overdraw with overlap the textures along the edges.
+  Pre3d.ShapeUtils.triangulate(cube);
 
   var w = texture_image.width;
   var h = texture_image.height;
 
-  var texinfo = new Pre3d.TextureInfo();
-  texinfo.image = texture_image;
-  texinfo.u0 = 0;
-  texinfo.v0 = 0;
-  texinfo.u1 = 0;
-  texinfo.v1 = h;
-  texinfo.u2 = w;
-  texinfo.v2 = h;
-  texinfo.u3 = w;
-  texinfo.v3 = 0;
+  var texinfo1 = new Pre3d.TextureInfo();
+  texinfo1.image = texture_image;
+  texinfo1.u0 = 0;
+  texinfo1.v0 = 0;
+  texinfo1.u1 = 0;
+  texinfo1.v1 = h;
+  texinfo1.u2 = w;
+  texinfo1.v2 = h;
 
-  // Use the same texture and uv's for all of the faces.
-  renderer.texture = texinfo;
+  var texinfo2 = new Pre3d.TextureInfo();
+  texinfo2.image = texture_image;
+  texinfo2.u0 = 0;
+  texinfo2.v0 = 0;
+  texinfo2.u1 = w;
+  texinfo2.v1 = h;
+  texinfo2.u2 = w;
+  texinfo2.v2 = 0;
+
+  function selectTexture(quad_face, quad_index, shape) {
+    // Each face is two triangles, the newly triangulated triangles last.
+    renderer.texture = quad_index < 6 ? texinfo1 : texinfo2;
+    return false;
+  }
+
+  renderer.quad_callback = selectTexture;
+
   // We don't want to fill, it will show at the edges (and waste cpu).
   renderer.fill_rgba = null;
 
