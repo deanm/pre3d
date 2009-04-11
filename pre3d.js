@@ -492,6 +492,41 @@ Pre3d = (function() {
     this.quads = [ ];
   }
 
+  // A curve represents a bezier curve, either quadratic or cubic.  It is
+  // the QuadFace equivalent for 3d paths.  Like QuadFace, the points are
+  // indices into a Path.
+  function Curve(ep, c0, c1) {
+    this.ep = ep;  // End point.
+    this.c0 = c0;  // Control point.
+    this.c1 = c1;  // Control point.
+  }
+
+  Curve.prototype.isQuadratic = function() {
+    return (this.c1 === null);
+  };
+
+  Curve.prototype.setQuadratic = function(ep, c0) {
+    this.ep = ep;
+    this.c0 = c0;
+    this.c1 = null;
+  };
+
+  Curve.prototype.setCubic = function(ep, c0, c1) {
+    this.ep = ep;
+    this.c0 = c0;
+    this.c1 = c1;
+  };
+
+  // A path is a collection of Curves.  The path starts implicitly at
+  // (0, 0, 0), and then continues along each curve, each piece of curve
+  // continuing where the last left off, forming a continuous path.
+  function Path() {
+    // An array of points.
+    this.points = [ ];
+    // The Curves index into points.
+    this.curves = [ ];
+  }
+
   // A camera is represented by a transform, and a focal length.
   function Camera() {
     this.transform = new Transform();
@@ -930,11 +965,52 @@ Pre3d = (function() {
     return num_quads;
   }
 
+  // Draw a Path.  There is no buffering, because there is no culling or
+  // z-sorting.  There is currently no filling, paths are only stroked.  To
+  // control the render state, you should modify ctx directly, and set whatever
+  // properties you want (stroke color, etc).  The drawing happens immediately.
+  Renderer.prototype.drawPath = function drawPath(path) {
+    var ctx = this.ctx;
+
+    var t = multiplyAffine(this.camera.transform.getMatrix(),
+                           this.transform.getMatrix());
+
+    var screen_points = this.projectPointsToCanvas(
+        transformPoints(t, path.points));
+    var start_point = this.projectPointToCanvas(
+        transformPoint(t, {x: 0, y: 0, z: 0}));
+
+    ctx.beginPath();
+    ctx.moveTo(start_point.x, start_point.y);
+
+    var curves = path.curves;
+    for (var j = 0, jl = curves.length; j < jl; ++j) {
+      var curve = curves[j];
+
+      if (curve.isQuadratic() === true) {
+        // TODO(deanm): This hasn't really been tested yet.
+        var c0 = screen_points[curve.c0];
+        var ep = screen_points[curve.ep];
+        ctx.quadraticCurveTo(c0.x, c0.y, ep.x, ep.y);
+      } else {
+        var c0 = screen_points[curve.c0];
+        var c1 = screen_points[curve.c1];
+        var ep = screen_points[curve.ep];
+        ctx.bezierCurveTo(c0.x, c0.y, c1.x, c1.y, ep.x, ep.y);
+      }
+    }
+
+    // We've connected all our Curves into a <canvas> path, now stroke it all.
+    ctx.stroke();
+  };
+
   return {
     RGBA: RGBA,
     Transform: Transform,
     QuadFace: QuadFace,
     Shape: Shape,
+    Curve: Curve,
+    Path: Path,
     Camera: Camera,
     TextureInfo: TextureInfo,
     Renderer: Renderer,
