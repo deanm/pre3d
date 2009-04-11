@@ -54,7 +54,7 @@ function start3d(texture_image) {
     renderer.transform.rotateY(state.cube_rotate_y_rad);
     renderer.transform.translate(state.cube_x, state.cube_y, -4);
     renderer.bufferShape(cube);
-    renderer.draw();
+    renderer.drawBuffer();
     renderer.emptyBuffer();
   }
 

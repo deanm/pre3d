@@ -832,7 +832,7 @@ Pre3d = (function() {
     return x.qf.centroid.z - y.qf.centroid.z;
   }
 
-  Renderer.prototype.draw = function draw(options) {
+  Renderer.prototype.drawBuffer = function drawBuffer() {
     var ctx = this.ctx;
 
     // Paint the background.  If there is no background, clear the canvas

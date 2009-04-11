@@ -35,7 +35,7 @@ window.addEventListener('load', function() {
       renderer.transform = cube.trans;
       renderer.bufferShape(cube.shape);
     }
-    renderer.draw();
+    renderer.drawBuffer();
     renderer.emptyBuffer();
   }
 

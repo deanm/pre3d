@@ -43,7 +43,7 @@ window.addEventListener('load', function() {
     renderer.fill_rgba = green;
     renderer.bufferShape(box2);
 
-    renderer.draw();
+    renderer.drawBuffer();
     renderer.emptyBuffer();
   }
 
