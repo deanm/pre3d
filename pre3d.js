@@ -643,23 +643,6 @@ Pre3d = (function() {
     return qf;
   };
 
-  // Path out a canvas path from an array of points.
-  // TODO(deanm): Only two simple uses of this left, should probably just
-  // clean those up and drop this.
-  function makeCanvasPath(ctx, ps) {
-    for (var i = 0, il = ps.length; i < il; ++i) {
-      var p = ps[i];
-      if (i == 0) {
-        ctx.moveTo(p.x, p.y);
-      } else {
-        ctx.lineTo(p.x, p.y);
-      }
-
-      // We don't need to completely close the path, this
-      // will happen for us when we fill it.
-    }
-  }
-
   // Textured triangle drawing by Thatcher Ulrich.  Draw a triangle portion of
   // an image, with the source (uv coordinates) mapped to screen x/y
   // coordinates.  A transformation matrix for this mapping is calculated, so
@@ -924,18 +907,22 @@ Pre3d = (function() {
       var n2r = obj.normal2_rgba;
       if (n1r !== null) {
         ctx.setStrokeColor(n1r.r, n1r.g, n1r.b, n1r.a);
+        var screen_centroid = this.projectPointToCanvas(qf.centroid);
+        var screen_point = this.projectPointToCanvas(
+            addPoints3d(qf.centroid, unitVector3d(qf.normal1)));
         ctx.beginPath();
-        makeCanvasPath(ctx, this.projectPointsToCanvas([
-              qf.centroid,
-              addPoints3d(qf.centroid, unitVector3d(qf.normal2))]));
+        ctx.moveTo(screen_centroid.x, screen_centroid.y);
+        ctx.lineTo(screen_point.x, screen_point.y);
         ctx.stroke();
       }
       if (n2r !== null) {
         ctx.setStrokeColor(n2r.r, n2r.g, n2r.b, n2r.a);
+        var screen_centroid = this.projectPointToCanvas(qf.centroid);
+        var screen_point = this.projectPointToCanvas(
+            addPoints3d(qf.centroid, unitVector3d(qf.normal2)));
         ctx.beginPath();
-        makeCanvasPath(ctx, this.projectPointsToCanvas([
-            qf.centroid,
-            addPoints3d(qf.centroid, qf.normal1)]));
+        ctx.moveTo(screen_centroid.x, screen_centroid.y);
+        ctx.lineTo(screen_point.x, screen_point.y);
         ctx.stroke();
       }
     }
