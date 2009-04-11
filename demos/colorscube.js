@@ -27,6 +27,7 @@ window.addEventListener('load', function() {
   }
 
   var num_cubes = cubes.length;
+  var cur_white = false;  // Default to black background.
 
   function draw() {
     for (var i = 0; i < num_cubes; ++i) {
@@ -35,6 +36,14 @@ window.addEventListener('load', function() {
       renderer.transform = cube.trans;
       renderer.bufferShape(cube.shape);
     }
+
+    if (cur_white) {
+      renderer.ctx.setFillColor(1, 1, 1, 1);
+    } else {
+      renderer.ctx.setFillColor(0, 0, 0, 1);
+    }
+    renderer.drawBackground();
+
     renderer.drawBuffer();
     renderer.emptyBuffer();
   }
@@ -43,19 +52,14 @@ window.addEventListener('load', function() {
   // Have the engine handle mouse / camera movement for us.
   DemoUtils.autoCamera(renderer, 0, 0, -30, 0.40, -1.06, 0, draw);
 
-  renderer.background_rgba = black;
-
-  cur_white = false;
   document.addEventListener('keydown', function(e) {
     if (e.keyCode != 84)  // t
       return;
 
     if (cur_white) {
       document.body.className = "black";
-      renderer.background_rgba = black;
     } else {
       document.body.className = "white";
-      renderer.background_rgba = white;
     }
     cur_white = !cur_white;
     draw();

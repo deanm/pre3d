@@ -43,6 +43,10 @@ window.addEventListener('load', function() {
     renderer.fill_rgba = green;
     renderer.bufferShape(box2);
 
+    // White background.
+    renderer.ctx.setFillColor(1, 1, 1, 1);
+    renderer.drawBackground();
+
     renderer.drawBuffer();
     renderer.emptyBuffer();
   }

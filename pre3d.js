@@ -541,9 +541,6 @@ Pre3d = (function() {
     // Should we skip backface culling.
     this.draw_backfaces = false;
 
-    // The color we paint as the background.
-    this.background_rgba = new RGBA(1, 1, 1, 1);
-
     this.texture = null;
     this.fill_rgba = new RGBA(1, 0, 0, 1);
     
@@ -832,18 +829,18 @@ Pre3d = (function() {
     return x.qf.centroid.z - y.qf.centroid.z;
   }
 
+  // Paint the background.  You should setup the fill color on ctx.
+  Renderer.prototype.drawBackground = function() {
+    this.ctx.fillRect(0, 0, this.width_, this.height_);
+  };
+
+  // Clear the background so the canvas is transparent.
+  Renderer.prototype.clearBackground = function() {
+    this.ctx.clearRect(0, 0, this.width_, this.height_);
+  };
+
   Renderer.prototype.drawBuffer = function drawBuffer() {
     var ctx = this.ctx;
-
-    // Paint the background.  If there is no background, clear the canvas
-    // so that the background is transparent.
-    var bg_rgba = this.background_rgba;
-    if (bg_rgba !== null) {
-      ctx.setFillColor(bg_rgba.r, bg_rgba.g, bg_rgba.b, bg_rgba.a);
-      ctx.fillRect(0, 0, this.width_, this.height_);
-    } else {
-      ctx.clearRect(0, 0, this.width_, this.height_);
-    }
 
     var all_quads = this.buffered_quads_;
     var num_quads = all_quads.length;
