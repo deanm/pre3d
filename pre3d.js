@@ -7,10 +7,10 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -104,7 +104,7 @@ Pre3d = (function() {
   function dotProduct3d(a, b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
   }
-  
+
   // a - b
   function subPoints2d(a, b) {
     return {x: a.x - b.x, y: a.y - b.y};
@@ -213,7 +213,7 @@ Pre3d = (function() {
     this.e11 = e11;
   };
 
-  // Transform the point |p| by the AffineMatrix |t|.  
+  // Transform the point |p| by the AffineMatrix |t|.
   function transformPoint(t, p) {
     return {
       x: t.e0 * p.x + t.e1 * p.y + t.e2  * p.z + t.e3,
@@ -249,7 +249,7 @@ Pre3d = (function() {
 
   function makeIdentityAffine() {
     return new AffineMatrix(
-      1, 0, 0, 0, 
+      1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0
     );
@@ -260,7 +260,7 @@ Pre3d = (function() {
     var s = Math.sin(theta);
     var c = Math.cos(theta);
     return new AffineMatrix(
-      1, 0,  0, 0, 
+      1, 0,  0, 0,
       0, c, -s, 0,
       0, s,  c, 0
     );
@@ -270,7 +270,7 @@ Pre3d = (function() {
     var s = Math.sin(theta);
     var c = Math.cos(theta);
     return new AffineMatrix(
-       c, 0, s, 0, 
+       c, 0, s, 0,
        0, 1, 0, 0,
       -s, 0, c, 0
     );
@@ -280,7 +280,7 @@ Pre3d = (function() {
     var s = Math.sin(theta);
     var c = Math.cos(theta);
     return new AffineMatrix(
-      c, -s, 0, 0, 
+      c, -s, 0, 0,
       s,  c, 0, 0,
       0,  0, 1, 0
     );
@@ -483,7 +483,7 @@ Pre3d = (function() {
   // A Shape represents a mesh, a collection of QuadFaces.  The Shape stores
   // a list of all vertices (so they can be shared across QuadFaces), and the
   // QuadFaces store indices into this list.
-  // 
+  //
   // All properties of shapes are meant to be public, so access them directly.
   function Shape() {
     // Array of 3d points, our vertices.
@@ -543,7 +543,7 @@ Pre3d = (function() {
 
     this.texture = null;
     this.fill_rgba = new RGBA(1, 0, 0, 1);
-    
+
     this.stroke_rgba = null;
 
     this.normal1_rgba = null;

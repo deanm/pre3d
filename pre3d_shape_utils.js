@@ -7,10 +7,10 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -160,7 +160,7 @@ Pre3d.ShapeUtils = (function() {
     //   /|   /|     +y
     //  5 -- 1 |      |__ +x
     //  | 7 -|-3     /
-    //  |/   |/    +z       
+    //  |/   |/    +z
     //  6 -- 2
 
     s.quads = [
@@ -228,11 +228,11 @@ Pre3d.ShapeUtils = (function() {
 
     //                        Front               Back (looking from front)
     //    4 -   - 0           05  14  08  01      04  26  20  00
-    //   /|      /|                                              
+    //   /|      /|
     //  5 -   - 1 |           15  16--10  09      27  28--22  21
     //  | 7 -   |-3               |////|              |////|
     //  |/      |/            18  19--13  12      30  31--25  24
-    //  6 -   - 2                                                
+    //  6 -   - 2
     //                        06  17  11  02      07  29  23  03
 
     s.quads = [
@@ -444,7 +444,7 @@ Pre3d.ShapeUtils = (function() {
       var p3 = shape.vertices[i3];
 
       //  p0   p1      p0  n0  p1
-      //           ->  n3  n4  n1 
+      //           ->  n3  n4  n1
       //  p3   p2      p3  n2  p2
 
       // We end up with an array of vertex indices of the centroids of each
