@@ -584,10 +584,10 @@ Pre3d.ShapeUtils = (function() {
 
       // These are the normals inside the face, from the centroid out to the
       // vertices.  They will be rotated and scaled to create the new faces.
-      var inner_normal1 = subPoints3d(vertices[qf.i0], original_cent);
-      var inner_normal2 = subPoints3d(vertices[qf.i1], original_cent);
+      var inner_normal0 = subPoints3d(vertices[qf.i0], original_cent);
+      var inner_normal1 = subPoints3d(vertices[qf.i1], original_cent);
       var inner_normal2 = subPoints3d(vertices[qf.i2], original_cent);
-      if (!is_triangle) {
+      if (is_triangle !== true) {
         var inner_normal3 = subPoints3d(vertices[qf.i3], original_cent);
       }
 
@@ -614,10 +614,10 @@ Pre3d.ShapeUtils = (function() {
 
         var index_before = vertices.length;
 
+        vertices.push(addPoints3d(new_cent, t.transformPoint(inner_normal0)));
         vertices.push(addPoints3d(new_cent, t.transformPoint(inner_normal1)));
         vertices.push(addPoints3d(new_cent, t.transformPoint(inner_normal2)));
-        vertices.push(addPoints3d(new_cent, t.transformPoint(inner_normal2)));
-        if (!is_triangle) {
+        if (is_triangle !== true) {
           vertices.push(
               addPoints3d(new_cent, t.transformPoint(inner_normal3)));
         }
@@ -635,7 +635,7 @@ Pre3d.ShapeUtils = (function() {
             index_before + 1,
             qf.i1));
 
-        if (is_triangle) {
+        if (is_triangle === true) {
           quads.push(new Pre3d.QuadFace(
               qf.i0,
               index_before,
@@ -658,7 +658,7 @@ Pre3d.ShapeUtils = (function() {
         qf.i0 = index_before;
         qf.i1 = index_before + 1;
         qf.i2 = index_before + 2;
-        if (!is_triangle)
+        if (is_triangle !== true)
           qf.i3 = index_before + 3;
       }
     }
