@@ -89,8 +89,6 @@ function start3d(texture_image) {
   ticker.start();
 }
 
-window.addEventListener('load', function() {
-  var img = new Image();
-  img.onload = function() { start3d(img); };
-  img.src = 'textured_cube_texture.jpg';
-}, false);
+var img = new Image();
+img.onload = function() { start3d(img); };
+img.src = 'textured_cube_texture.jpg';
