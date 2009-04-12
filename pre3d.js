@@ -994,7 +994,6 @@ Pre3d = (function() {
       var curve = curves[j];
 
       if (curve.isQuadratic() === true) {
-        // TODO(deanm): This hasn't really been tested yet.
         var c0 = screen_points[curve.c0];
         var ep = screen_points[curve.ep];
         ctx.quadraticCurveTo(c0.x, c0.y, ep.x, ep.y);
