@@ -525,6 +525,9 @@ Pre3d = (function() {
     this.points = [ ];
     // The Curves index into points.
     this.curves = [ ];
+    // Optional starting point.  If this is null, the path will start at the
+    // origin (0, 0, 0).  Otherwise this is an index into points.
+    this.starting_point = null;
   }
 
   // A camera is represented by a transform, and a focal length.
@@ -977,8 +980,11 @@ Pre3d = (function() {
 
     var screen_points = this.projectPointsToCanvas(
         transformPoints(t, path.points));
-    var start_point = this.projectPointToCanvas(
-        transformPoint(t, {x: 0, y: 0, z: 0}));
+
+    // Start the path at (0, 0, 0) unless there is an explicit starting point.
+    var start_point = (path.starting_point === null ?
+        this.projectPointToCanvas(transformPoint(t, {x: 0, y: 0, z: 0})) :
+        screen_points[path.starting_point]);
 
     ctx.beginPath();
     ctx.moveTo(start_point.x, start_point.y);
