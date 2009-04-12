@@ -22,7 +22,7 @@ function start3d() {
     orig_bezierCurveTo.call(this, c0x, c0y, c1x, c1y, epx, epy);
   }
 
-  var circle = Pre3d.PathUtils.makeSpiral(10);
+  var spiral = Pre3d.PathUtils.makeSpiral(10);
 
   // Setup the canvas context for stroking the spiral blue and double thick.
   renderer.ctx.setStrokeColor(0x52 / 255, 0xbb / 255, 0x5c / 255, 1);
@@ -38,7 +38,7 @@ function start3d() {
     renderer.ctx.setFillColor(1, 1, 1, 1);
     renderer.drawBackground();
 
-    renderer.drawPath(circle);
+    renderer.drawPath(spiral);
   }
 
   renderer.camera.focal_length = 2.5;
