@@ -1,6 +1,6 @@
 // (c) Dean McNamee <dean@gmail.com>.  All rights reserved.
 
-window.addEventListener('load', function() {
+function start3d() {
   var screen_canvas = document.getElementById('canvas');
   var renderer = new Pre3d.Renderer(screen_canvas);
 
@@ -56,4 +56,6 @@ window.addEventListener('load', function() {
   toolbar.populateDiv(document.getElementById('toolbar'));
 
   draw();
-}, false);
+}
+
+start3d();
