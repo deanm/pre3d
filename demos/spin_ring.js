@@ -1,6 +1,6 @@
 // (c) Dean McNamee <dean@gmail.com>.  All rights reserved.
 
-window.addEventListener('load', function() {
+function start3d() {
   var screen_canvas = document.getElementById('canvas');
   var renderer = new Pre3d.Renderer(screen_canvas);
 
@@ -43,7 +43,11 @@ window.addEventListener('load', function() {
     renderer.fill_rgba = green;
     renderer.bufferShape(box2);
 
-    renderer.draw();
+    // White background.
+    renderer.ctx.setFillColor(1, 1, 1, 1);
+    renderer.drawBackground();
+
+    renderer.drawBuffer();
     renderer.emptyBuffer();
   }
 
@@ -76,4 +80,6 @@ window.addEventListener('load', function() {
   toolbar.populateDiv(document.getElementById('toolbar'));
 
   ticker.start();
-}, false);
+}
+
+start3d();

@@ -7,10 +7,10 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -104,7 +104,7 @@ Pre3d = (function() {
   function dotProduct3d(a, b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
   }
-  
+
   // a - b
   function subPoints2d(a, b) {
     return {x: a.x - b.x, y: a.y - b.y};
@@ -213,7 +213,7 @@ Pre3d = (function() {
     this.e11 = e11;
   };
 
-  // Transform the point |p| by the AffineMatrix |t|.  
+  // Transform the point |p| by the AffineMatrix |t|.
   function transformPoint(t, p) {
     return {
       x: t.e0 * p.x + t.e1 * p.y + t.e2  * p.z + t.e3,
@@ -249,7 +249,7 @@ Pre3d = (function() {
 
   function makeIdentityAffine() {
     return new AffineMatrix(
-      1, 0, 0, 0, 
+      1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0
     );
@@ -260,7 +260,7 @@ Pre3d = (function() {
     var s = Math.sin(theta);
     var c = Math.cos(theta);
     return new AffineMatrix(
-      1, 0,  0, 0, 
+      1, 0,  0, 0,
       0, c, -s, 0,
       0, s,  c, 0
     );
@@ -270,7 +270,7 @@ Pre3d = (function() {
     var s = Math.sin(theta);
     var c = Math.cos(theta);
     return new AffineMatrix(
-       c, 0, s, 0, 
+       c, 0, s, 0,
        0, 1, 0, 0,
       -s, 0, c, 0
     );
@@ -280,7 +280,7 @@ Pre3d = (function() {
     var s = Math.sin(theta);
     var c = Math.cos(theta);
     return new AffineMatrix(
-      c, -s, 0, 0, 
+      c, -s, 0, 0,
       s,  c, 0, 0,
       0,  0, 1, 0
     );
@@ -483,13 +483,51 @@ Pre3d = (function() {
   // A Shape represents a mesh, a collection of QuadFaces.  The Shape stores
   // a list of all vertices (so they can be shared across QuadFaces), and the
   // QuadFaces store indices into this list.
-  // 
+  //
   // All properties of shapes are meant to be public, so access them directly.
   function Shape() {
     // Array of 3d points, our vertices.
     this.vertices = [ ];
     // Array of QuadFaces, the indices will point into |vertices|.
     this.quads = [ ];
+  }
+
+  // A curve represents a bezier curve, either quadratic or cubic.  It is
+  // the QuadFace equivalent for 3d paths.  Like QuadFace, the points are
+  // indices into a Path.
+  function Curve(ep, c0, c1) {
+    this.ep = ep;  // End point.
+    this.c0 = c0;  // Control point.
+    this.c1 = c1;  // Control point.
+  }
+
+  Curve.prototype.isQuadratic = function() {
+    return (this.c1 === null);
+  };
+
+  Curve.prototype.setQuadratic = function(ep, c0) {
+    this.ep = ep;
+    this.c0 = c0;
+    this.c1 = null;
+  };
+
+  Curve.prototype.setCubic = function(ep, c0, c1) {
+    this.ep = ep;
+    this.c0 = c0;
+    this.c1 = c1;
+  };
+
+  // A path is a collection of Curves.  The path starts implicitly at
+  // (0, 0, 0), and then continues along each curve, each piece of curve
+  // continuing where the last left off, forming a continuous path.
+  function Path() {
+    // An array of points.
+    this.points = [ ];
+    // The Curves index into points.
+    this.curves = [ ];
+    // Optional starting point.  If this is null, the path will start at the
+    // origin (0, 0, 0).  Otherwise this is an index into points.
+    this.starting_point = null;
   }
 
   // A camera is represented by a transform, and a focal length.
@@ -541,12 +579,9 @@ Pre3d = (function() {
     // Should we skip backface culling.
     this.draw_backfaces = false;
 
-    // The color we paint as the background.
-    this.background_rgba = new RGBA(1, 1, 1, 1);
-
     this.texture = null;
     this.fill_rgba = new RGBA(1, 0, 0, 1);
-    
+
     this.stroke_rgba = null;
 
     this.normal1_rgba = null;
@@ -645,23 +680,6 @@ Pre3d = (function() {
       qf.i3 = this.projectPointToCanvas(qf.i3);
     return qf;
   };
-
-  // Path out a canvas path from an array of points.
-  // TODO(deanm): Only two simple uses of this left, should probably just
-  // clean those up and drop this.
-  function makeCanvasPath(ctx, ps) {
-    for (var i = 0, il = ps.length; i < il; ++i) {
-      var p = ps[i];
-      if (i == 0) {
-        ctx.moveTo(p.x, p.y);
-      } else {
-        ctx.lineTo(p.x, p.y);
-      }
-
-      // We don't need to completely close the path, this
-      // will happen for us when we fill it.
-    }
-  }
 
   // Textured triangle drawing by Thatcher Ulrich.  Draw a triangle portion of
   // an image, with the source (uv coordinates) mapped to screen x/y
@@ -832,18 +850,18 @@ Pre3d = (function() {
     return x.qf.centroid.z - y.qf.centroid.z;
   }
 
-  Renderer.prototype.draw = function draw(options) {
-    var ctx = this.ctx;
+  // Paint the background.  You should setup the fill color on ctx.
+  Renderer.prototype.drawBackground = function() {
+    this.ctx.fillRect(0, 0, this.width_, this.height_);
+  };
 
-    // Paint the background.  If there is no background, clear the canvas
-    // so that the background is transparent.
-    var bg_rgba = this.background_rgba;
-    if (bg_rgba !== null) {
-      ctx.setFillColor(bg_rgba.r, bg_rgba.g, bg_rgba.b, bg_rgba.a);
-      ctx.fillRect(0, 0, this.width_, this.height_);
-    } else {
-      ctx.clearRect(0, 0, this.width_, this.height_);
-    }
+  // Clear the background so the canvas is transparent.
+  Renderer.prototype.clearBackground = function() {
+    this.ctx.clearRect(0, 0, this.width_, this.height_);
+  };
+
+  Renderer.prototype.drawBuffer = function drawBuffer() {
+    var ctx = this.ctx;
 
     var all_quads = this.buffered_quads_;
     var num_quads = all_quads.length;
@@ -927,18 +945,22 @@ Pre3d = (function() {
       var n2r = obj.normal2_rgba;
       if (n1r !== null) {
         ctx.setStrokeColor(n1r.r, n1r.g, n1r.b, n1r.a);
+        var screen_centroid = this.projectPointToCanvas(qf.centroid);
+        var screen_point = this.projectPointToCanvas(
+            addPoints3d(qf.centroid, unitVector3d(qf.normal1)));
         ctx.beginPath();
-        makeCanvasPath(ctx, this.projectPointsToCanvas([
-              qf.centroid,
-              addPoints3d(qf.centroid, unitVector3d(qf.normal2))]));
+        ctx.moveTo(screen_centroid.x, screen_centroid.y);
+        ctx.lineTo(screen_point.x, screen_point.y);
         ctx.stroke();
       }
       if (n2r !== null) {
         ctx.setStrokeColor(n2r.r, n2r.g, n2r.b, n2r.a);
+        var screen_centroid = this.projectPointToCanvas(qf.centroid);
+        var screen_point = this.projectPointToCanvas(
+            addPoints3d(qf.centroid, unitVector3d(qf.normal2)));
         ctx.beginPath();
-        makeCanvasPath(ctx, this.projectPointsToCanvas([
-            qf.centroid,
-            addPoints3d(qf.centroid, qf.normal1)]));
+        ctx.moveTo(screen_centroid.x, screen_centroid.y);
+        ctx.lineTo(screen_point.x, screen_point.y);
         ctx.stroke();
       }
     }
@@ -946,11 +968,54 @@ Pre3d = (function() {
     return num_quads;
   }
 
+  // Draw a Path.  There is no buffering, because there is no culling or
+  // z-sorting.  There is currently no filling, paths are only stroked.  To
+  // control the render state, you should modify ctx directly, and set whatever
+  // properties you want (stroke color, etc).  The drawing happens immediately.
+  Renderer.prototype.drawPath = function drawPath(path) {
+    var ctx = this.ctx;
+
+    var t = multiplyAffine(this.camera.transform.getMatrix(),
+                           this.transform.getMatrix());
+
+    var screen_points = this.projectPointsToCanvas(
+        transformPoints(t, path.points));
+
+    // Start the path at (0, 0, 0) unless there is an explicit starting point.
+    var start_point = (path.starting_point === null ?
+        this.projectPointToCanvas(transformPoint(t, {x: 0, y: 0, z: 0})) :
+        screen_points[path.starting_point]);
+
+    ctx.beginPath();
+    ctx.moveTo(start_point.x, start_point.y);
+
+    var curves = path.curves;
+    for (var j = 0, jl = curves.length; j < jl; ++j) {
+      var curve = curves[j];
+
+      if (curve.isQuadratic() === true) {
+        var c0 = screen_points[curve.c0];
+        var ep = screen_points[curve.ep];
+        ctx.quadraticCurveTo(c0.x, c0.y, ep.x, ep.y);
+      } else {
+        var c0 = screen_points[curve.c0];
+        var c1 = screen_points[curve.c1];
+        var ep = screen_points[curve.ep];
+        ctx.bezierCurveTo(c0.x, c0.y, c1.x, c1.y, ep.x, ep.y);
+      }
+    }
+
+    // We've connected all our Curves into a <canvas> path, now stroke it all.
+    ctx.stroke();
+  };
+
   return {
     RGBA: RGBA,
     Transform: Transform,
     QuadFace: QuadFace,
     Shape: Shape,
+    Curve: Curve,
+    Path: Path,
     Camera: Camera,
     TextureInfo: TextureInfo,
     Renderer: Renderer,

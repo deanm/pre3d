@@ -54,7 +54,12 @@ function start3d(texture_image) {
     renderer.transform.rotateY(state.cube_rotate_y_rad);
     renderer.transform.translate(state.cube_x, state.cube_y, -4);
     renderer.bufferShape(cube);
-    renderer.draw();
+
+    // White background.
+    renderer.ctx.setFillColor(1, 1, 1, 1);
+    renderer.drawBackground();
+
+    renderer.drawBuffer();
     renderer.emptyBuffer();
   }
 
@@ -84,8 +89,6 @@ function start3d(texture_image) {
   ticker.start();
 }
 
-window.addEventListener('load', function() {
-  var img = new Image();
-  img.onload = function() { start3d(img); };
-  img.src = 'textured_cube_texture.jpg';
-}, false);
+var img = new Image();
+img.onload = function() { start3d(img); };
+img.src = 'textured_cube_texture.jpg';
