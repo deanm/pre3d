@@ -177,6 +177,7 @@ DemoUtils = (function() {
     function set_camera() {
       var ct = renderer.camera.transform;
       ct.reset();
+      ct.rotateZ(camera_state.rotate_z);
       ct.rotateY(camera_state.rotate_y);
       ct.rotateX(camera_state.rotate_x);
       ct.translate(camera_state.x, camera_state.y, camera_state.z);
