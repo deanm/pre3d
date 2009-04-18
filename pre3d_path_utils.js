@@ -79,7 +79,7 @@ Pre3d.PathUtils = (function() {
   // point that forms a quadratic bezier (with end points p0 and p2) that
   // crosses through p1 at t=0.5. The time value 0.5 is hardcoded / implicit to
   // simplify the calculation.
-  function fitQuadraticFromPoints(p0, p1, p2) {
+  function fitQuadraticToPoints(p0, p1, p2) {
     return {
         x: p1.x + p1.x - 0.5 * (p0.x + p2.x),
         y: p1.y + p1.y - 0.5 * (p0.y + p2.y),
@@ -89,6 +89,6 @@ Pre3d.PathUtils = (function() {
   return {
     makeCircle: makeCircle,
     makeSpiral: makeSpiral,
-    fitQuadraticFromPoints: fitQuadraticFromPoints
+    fitQuadraticToPoints: fitQuadraticToPoints
   };
 })();
