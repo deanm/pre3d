@@ -1,0 +1,65 @@
+<html>
+
+<head>
+
+<title>A Strange Attractor - Dean McNamee</title>
+
+<style>
+  body * {
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+  body {
+    background-color: black;
+    color: white;
+  }
+  a:link, a:visited, a:hover, a:active {
+    margin-left: 5px;
+    color: white;
+    text-decoration: none;
+  }
+  a:hover {
+    border-top: 1px solid white;
+  }
+  span.spaceyspan { margin-right: 20px; }
+  div.centeredDiv { text-align: center; }
+  li { list-style: none; }
+  td { padding-right: 10px; }
+</style>
+
+<script src="../pre3d.js"></script>
+<script src="../pre3d_path_utils.js"></script>
+<script src="demo_utils.js"></script>
+<script src="lorenz84.js"></script>
+</head>
+
+<body>
+
+<div class="centeredDiv">
+<canvas id="canvas" width="800" height="600">
+  Sorry, this demo requires a web browser which supports HTML5 canvas!
+</canvas>
+</div>
+
+<p>
+JavaScript software 3d renderer &nbsp; &copy; 2009 Dean McNamee (dean at gmail)
+</p>
+
+<table>
+<tr><td>Mouse</td><td>&rarr;</td><td>rotate around origin x and y axis</td></tr>
+<tr><td>Mouse + ctrl</td><td>&rarr;</td><td>pan x / y</td></tr>
+<tr><td>Mouse + shift</td><td>&rarr;</td><td>pan z</td></tr>
+<tr><td>Mouse + ctrl + shift</td><td>&rarr;</td><td>adjust focal length</td></tr>
+</table>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-8603987-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>
