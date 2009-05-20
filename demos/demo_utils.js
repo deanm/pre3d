@@ -112,7 +112,7 @@ DemoUtils = (function() {
       }
 
       return {x: e.layerX - off.x, y: e.layerY - off.y};
-    };
+    }
 
     canvas.addEventListener('mousedown', function(e) {
       var rel = relXY(e);
