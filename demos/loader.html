@@ -29,11 +29,8 @@ window.addEventListener('load', function() {
   var paths = document.location.hash.substr(1).split(',');
   for (var i = 0, il = paths.length; i < il; ++i) {
     var path = paths[i];
-    // Some sort of sad security attempt to not load external js.
-    if (path.indexOf(':') != -1)
-      continue;
     var script = document.createElement('script');
-    script.src = path;
+    script.src = './' + path;
     document.body.appendChild(script);
   }
 }, false);
