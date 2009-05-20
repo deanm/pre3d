@@ -25,9 +25,16 @@
 <script src="demo_utils.js"></script>
 <script>
 window.addEventListener('load', function() {
-  var script = document.createElement('script');
-  script.src = document.location.hash.substr(1);
-  document.body.appendChild(script);
+  var paths = document.location.hash.substr(1).split(',');
+  for (var i = 0, il = paths.length; i < il; ++i) {
+    var path = paths[i];
+    // Some sort of sad security attempt to not load external js.
+    if (path.indexOf(':') != -1)
+      continue;
+    var script = document.createElement('script');
+    script.src = path;
+    document.body.appendChild(script);
+  }
 }, false);
 </script>
 </head>
