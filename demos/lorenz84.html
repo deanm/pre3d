@@ -1,18 +1,25 @@
 <html>
+
 <head>
-<title>JavaScript 3d - Dean McNamee</title>
+
+<title>A Strange Attractor - Dean McNamee</title>
+
 <style>
   body * {
     font-family: sans-serif;
     font-size: 14px;
   }
-  body.white {
-    background-color: white;
-    color: black;
-  }
-  body.black {
+  body {
     background-color: black;
     color: white;
+  }
+  a:link, a:visited, a:hover, a:active {
+    margin-left: 5px;
+    color: white;
+    text-decoration: none;
+  }
+  a:hover {
+    border-top: 1px solid white;
   }
   span.spaceyspan { margin-right: 20px; }
   div.centeredDiv { text-align: center; }
@@ -21,24 +28,13 @@
 </style>
 
 <script src="../pre3d.js"></script>
-<script src="../pre3d_shape_utils.js"></script>
 <script src="../pre3d_path_utils.js"></script>
 <script src="demo_utils.js"></script>
-<script>
-window.addEventListener('load', function() {
-  var paths = document.location.hash.substr(1).split(',');
-  for (var i = 0, il = paths.length; i < il; ++i) {
-    var path = paths[i];
-    var script = document.createElement('script');
-    script.src = './' + path;
-    document.body.appendChild(script);
-  }
-}, false);
-</script>
+<script src="lorenz84.js"></script>
 </head>
 
 <body>
-<div id="toolbar"></div>
+
 <div class="centeredDiv">
 <canvas id="canvas" width="800" height="600">
   Sorry, this demo requires a web browser which supports HTML5 canvas!
