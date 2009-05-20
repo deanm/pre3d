@@ -606,10 +606,10 @@ Pre3d = (function() {
     this.quad_callback = null;
 
     // Internals, don't access me.
-    // TODO(deanm): Width and height, currently this is hardcoded as 800x600.
-    // Investigate performance of using a <canvas> transform to map to screen.
     this.width_  = canvas_element.width;
     this.height_ = canvas_element.height;
+    this.scale_ = this.height_ / 2;
+    this.xoff_ = this.width_ / 2;
 
     this.buffered_quads_ = null;
     this.emptyBuffer();
@@ -653,10 +653,10 @@ Pre3d = (function() {
   Renderer.prototype.projectPointToCanvas = function projectPointToCanvas(p) {
     // We're looking down the z-axis in the negative direction...
     var v = this.camera.focal_length / -p.z;
-    var x = p.x * v;
-    var y = p.y * v;
-    // TODO hardcoded 800x600 for now.
-    return {x: (x + 1) * 300 + 100, y: (-y + 1) * 300};
+    var scale = this.scale_;
+    // Map the height to -1 .. 1, and the width to maintain aspect.
+    return {x: p.x * v * scale + this.xoff_,
+            y: p.y * v * -scale + scale};
   };
 
   // Project a 3d point onto the 2d canvas surface (pixel coordinates).
