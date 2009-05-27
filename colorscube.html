@@ -17,6 +17,12 @@
     background-color: black;
     color: white;
   }
+  body.black a:link, body.black a:visited, body.black a:hover, body.black a:active {
+    color: white;
+  }
+  body.white a:link, body.white a:visited, body.white a:hover, body.white a:active {
+    color: black;
+  }
   span.spaceyspan { margin-right: 20px; }
   div.centeredDiv { text-align: center; }
   li { list-style: none; }
@@ -35,7 +41,7 @@
 </div>
 
 <p>
-JavaScript software 3d renderer &nbsp; &copy 2009 Dean McNamee (dean at gmail)
+&copy; 2009 Dean McNamee (dean at gmail). Built with <a href="http://deanm.github.com/pre3d/">Pre3d</a>.
 </p>
 
 <table>
@@ -47,5 +53,14 @@ JavaScript software 3d renderer &nbsp; &copy 2009 Dean McNamee (dean at gmail)
 <tr><td>Mouse + ctrl + shift</td><td>&rarr;</td><td>adjust focal length</td></tr>
 </table>
 
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-8603987-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
 </body>
 </html>
