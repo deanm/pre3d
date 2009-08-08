@@ -302,6 +302,14 @@ Pre3d = (function() {
     );
   }
 
+  // Return a copy of the affine matrix |m|.
+  function dupAffine(m) {
+    return new AffineMatrix(
+        m.e0, m.e1, m.e2, m.e3,
+        m.e4, m.e5, m.e6, m.e7,
+        m.e8, m.e9, m.e10, m.e11);
+  }
+
   // Return the transpose of the inverse done via the classical adjoint.  This
   // skips division by the determinant, so vectors transformed by the resulting
   // transform will not retain their original length.
@@ -384,15 +392,27 @@ Pre3d = (function() {
     this.matrix_ =
         multiplyAffine(makeRotateAffineX(theta), this.matrix_);
   };
+  Transform.prototype.rotateXPre = function(theta) {
+    this.matrix_ =
+        multiplyAffine(this.matrix_, makeRotateAffineX(theta));
+  };
 
   Transform.prototype.rotateY = function(theta) {
     this.matrix_ =
         multiplyAffine(makeRotateAffineY(theta), this.matrix_);
   };
+  Transform.prototype.rotateYPre = function(theta) {
+    this.matrix_ =
+        multiplyAffine(this.matrix_, makeRotateAffineY(theta));
+  };
 
   Transform.prototype.rotateZ = function(theta) {
     this.matrix_ =
         multiplyAffine(makeRotateAffineZ(theta), this.matrix_);
+  };
+  Transform.prototype.rotateZPre = function(theta) {
+    this.matrix_ =
+        multiplyAffine(this.matrix_, makeRotateAffineZ(theta));
   };
 
   Transform.prototype.translate = function(dx, dy, dz) {
@@ -416,6 +436,24 @@ Pre3d = (function() {
 
   Transform.prototype.transformPoint = function(p) {
     return transformPoint(this.matrix_, p);
+  };
+
+  Transform.prototype.multTransform = function(t) {
+    this.matrix_ = multiplyAffine(this.matrix_, t.matrix_);
+  };
+
+  Transform.prototype.setDCM = function(u, v, w) {
+    var m = this.matrix_;
+    m.e0 = u.x; m.e4 = u.y; m.e8 = u.z;
+    m.e1 = v.x; m.e5 = v.y; m.e9 = v.z;
+    m.e2 = w.x; m.e6 = w.y; m.e10 = w.z;
+  };
+
+  Transform.prototype.dup = function() {
+    // TODO(deanm): This should be better.
+    var tm = new Transform();
+    tm.matrix_ = dupAffine(this.matrix_);
+    return tm;
   };
 
   // RGBA is our simple representation for colors.
@@ -596,6 +634,10 @@ Pre3d = (function() {
     // Object to world coordinates transformation.
     this.transform = new Transform();
 
+    // Used for pushTransform and popTransform.  The current transform is
+    // always r.transform, and the stack holds anything else.  Internal.
+    this.transform_stack_ = [ ];
+
     // A callback before a QuadFace is processed during bufferShape.  This
     // allows you to change the render state per-quad, and also to skip a quad
     // by returning true from the callback.  For example:
@@ -639,6 +681,15 @@ Pre3d = (function() {
       }
     }
   }
+
+  Renderer.prototype.pushTransform = function() {
+    this.transform_stack_.push(this.transform.dup());
+  };
+
+  Renderer.prototype.popTransform = function() {
+    // If the stack is empty we'll end up with undefined as the transform.
+    this.transform = this.transform_stack_.pop();
+  };
 
   Renderer.prototype.emptyBuffer = function() {
     this.buffered_quads_ = [ ];
@@ -972,8 +1023,9 @@ Pre3d = (function() {
   // z-sorting.  There is currently no filling, paths are only stroked.  To
   // control the render state, you should modify ctx directly, and set whatever
   // properties you want (stroke color, etc).  The drawing happens immediately.
-  Renderer.prototype.drawPath = function drawPath(path) {
+  Renderer.prototype.drawPath = function drawPath(path, opts) {
     var ctx = this.ctx;
+    var opts = opts || { };
 
     var t = multiplyAffine(this.camera.transform.getMatrix(),
                            this.transform.getMatrix());
@@ -1005,8 +1057,12 @@ Pre3d = (function() {
       }
     }
 
-    // We've connected all our Curves into a <canvas> path, now stroke it all.
-    ctx.stroke();
+    // We've connected all our Curves into a <canvas> path, now draw it.
+    if (opts.fill === true) {
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
   };
 
   return {
