@@ -1023,8 +1023,9 @@ Pre3d = (function() {
   // z-sorting.  There is currently no filling, paths are only stroked.  To
   // control the render state, you should modify ctx directly, and set whatever
   // properties you want (stroke color, etc).  The drawing happens immediately.
-  Renderer.prototype.drawPath = function drawPath(path) {
+  Renderer.prototype.drawPath = function drawPath(path, opts) {
     var ctx = this.ctx;
+    var opts = opts || { };
 
     var t = multiplyAffine(this.camera.transform.getMatrix(),
                            this.transform.getMatrix());
@@ -1056,8 +1057,12 @@ Pre3d = (function() {
       }
     }
 
-    // We've connected all our Curves into a <canvas> path, now stroke it all.
-    ctx.stroke();
+    // We've connected all our Curves into a <canvas> path, now draw it.
+    if (opts.fill === true) {
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
   };
 
   return {
