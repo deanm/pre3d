@@ -71,7 +71,6 @@ function start3d() {
     renderer.drawBackground();
 
     for (var i = 0, il = circles.length; i < il; ++i) {
-      // Setup the canvas context for stroking the spiral blue and double thick.
       var c = circles[i];
       var cc = c.c;
       renderer.ctx.setFillColor(cc.r, cc.g, cc.b, 0.2);
