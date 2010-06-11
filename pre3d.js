@@ -885,7 +885,7 @@ Pre3d = (function() {
         fill_rgba: this.fill_rgba,
         stroke_rgba: this.stroke_rgba,
         normal1_rgba: this.normal1_rgba,
-        normal2_rgba: this.normal2_rgba,
+        normal2_rgba: this.normal2_rgba
       };
 
       this.buffered_quads_.push(obj);
@@ -1088,7 +1088,7 @@ Pre3d = (function() {
       unitVector3d: unitVector3d,
       linearInterpolate: linearInterpolate,
       linearInterpolatePoints3d: linearInterpolatePoints3d,
-      averagePoints: averagePoints,
-    },
+      averagePoints: averagePoints
+    }
   };
 })();

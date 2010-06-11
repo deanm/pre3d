@@ -456,7 +456,7 @@ Pre3d.ShapeUtils = (function() {
         [i1, i2].sort(),
         [i2, i3].sort(),
         [i3, i0].sort(),
-        [i0, i1, i2, i3].sort(),
+        [i0, i1, i2, i3].sort()
       ];
 
       for (var j = 0, jl = ni.length; j < jl; ++j) {
@@ -680,6 +680,6 @@ Pre3d.ShapeUtils = (function() {
     averageSmooth: averageSmooth,
     linearSubdivide: linearSubdivide,
 
-    Extruder: Extruder,
+    Extruder: Extruder
   };
 })();
