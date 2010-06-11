@@ -213,15 +213,6 @@ Pre3d = (function() {
     this.e11 = e11;
   };
 
-  // Transform the point |p| by the AffineMatrix |t|.
-  function transformPoint(t, p) {
-    return {
-      x: t.e0 * p.x + t.e1 * p.y + t.e2  * p.z + t.e3,
-      y: t.e4 * p.x + t.e5 * p.y + t.e6  * p.z + t.e7,
-      z: t.e8 * p.x + t.e9 * p.y + t.e10 * p.z + t.e11
-    };
-  }
-
   // Matrix multiplication of AffineMatrix |a| x |b|.  This is unrolled,
   // and includes the calculations with the implied last row.
   function multiplyAffine(a, b) {
@@ -333,6 +324,96 @@ Pre3d = (function() {
     );
   }
 
+  // Transform the point |p| by the AffineMatrix |t|.
+  function transformPoint(t, p) {
+    return {
+      x: t.e0 * p.x + t.e1 * p.y + t.e2  * p.z + t.e3,
+      y: t.e4 * p.x + t.e5 * p.y + t.e6  * p.z + t.e7,
+      z: t.e8 * p.x + t.e9 * p.y + t.e10 * p.z + t.e11
+    };
+  }
+
+  // A Transform is a convenient wrapper around a AffineMatrix, and it is what
+  // will be exposed for most transforms (camera, etc).
+  function Transform() {
+    this.reset();
+  }
+
+  // Reset the transform to the identity matrix.
+  Transform.prototype.reset = function() {
+    this.m = makeIdentityAffine();
+  };
+
+  // TODO(deanm): We are creating two extra objects here.  What would be most
+  // effecient is something like multiplyAffineByRotateXIP(this.m), etc.
+  Transform.prototype.rotateX = function(theta) {
+    this.m =
+        multiplyAffine(makeRotateAffineX(theta), this.m);
+  };
+  Transform.prototype.rotateXPre = function(theta) {
+    this.m =
+        multiplyAffine(this.m, makeRotateAffineX(theta));
+  };
+
+  Transform.prototype.rotateY = function(theta) {
+    this.m =
+        multiplyAffine(makeRotateAffineY(theta), this.m);
+  };
+  Transform.prototype.rotateYPre = function(theta) {
+    this.m =
+        multiplyAffine(this.m, makeRotateAffineY(theta));
+  };
+
+  Transform.prototype.rotateZ = function(theta) {
+    this.m =
+        multiplyAffine(makeRotateAffineZ(theta), this.m);
+  };
+  Transform.prototype.rotateZPre = function(theta) {
+    this.m =
+        multiplyAffine(this.m, makeRotateAffineZ(theta));
+  };
+
+  Transform.prototype.translate = function(dx, dy, dz) {
+    this.m =
+        multiplyAffine(makeTranslateAffine(dx, dy, dz), this.m);
+  };
+  Transform.prototype.translatePre = function(dx, dy, dz) {
+    this.m =
+        multiplyAffine(this.m, makeTranslateAffine(dx, dy, dz));
+  };
+
+  Transform.prototype.scale = function(sx, sy, sz) {
+    this.m =
+        multiplyAffine(makeScaleAffine(sx, sy, sz), this.m);
+  };
+
+  Transform.prototype.scalePre = function(sx, sy, sz) {
+    this.m =
+        multiplyAffine(this.m, makeScaleAffine(sx, sy, sz));
+  };
+
+  Transform.prototype.transformPoint = function(p) {
+    return transformPoint(this.m, p);
+  };
+
+  Transform.prototype.multTransform = function(t) {
+    this.m = multiplyAffine(this.m, t.m);
+  };
+
+  Transform.prototype.setDCM = function(u, v, w) {
+    var m = this.m;
+    m.e0 = u.x; m.e4 = u.y; m.e8 = u.z;
+    m.e1 = v.x; m.e5 = v.y; m.e9 = v.z;
+    m.e2 = w.x; m.e6 = w.y; m.e10 = w.z;
+  };
+
+  Transform.prototype.dup = function() {
+    // TODO(deanm): This should be better.
+    var tm = new Transform();
+    tm.m = dupAffine(this.m);
+    return tm;
+  };
+
   // Transform and return a new array of points with transform matrix |t|.
   function transformPoints(t, ps) {
     var il = ps.length;
@@ -370,91 +451,6 @@ Pre3d = (function() {
     addPoints2dIP(b, b, vec);
     subPoints2dIP(a, a, vec);
   }
-
-  // A Transform is a convenient wrapper around a AffineMatrix, and it is what
-  // will be expose for more transforms (camera, etc).
-  function Transform() {
-    this.reset();
-  }
-
-  // Returns a reference (not a copy) of the matrix object.
-  Transform.prototype.getMatrix = function() {
-    return this.matrix_;
-  }
-
-  Transform.prototype.reset = function() {
-    this.matrix_ = makeIdentityAffine();
-  };
-
-  // TODO(deanm): We are creating two extra objects here.  What would be most
-  // effecient is something like multiplyAffineByRotateXIP(this.matrix_), etc.
-  Transform.prototype.rotateX = function(theta) {
-    this.matrix_ =
-        multiplyAffine(makeRotateAffineX(theta), this.matrix_);
-  };
-  Transform.prototype.rotateXPre = function(theta) {
-    this.matrix_ =
-        multiplyAffine(this.matrix_, makeRotateAffineX(theta));
-  };
-
-  Transform.prototype.rotateY = function(theta) {
-    this.matrix_ =
-        multiplyAffine(makeRotateAffineY(theta), this.matrix_);
-  };
-  Transform.prototype.rotateYPre = function(theta) {
-    this.matrix_ =
-        multiplyAffine(this.matrix_, makeRotateAffineY(theta));
-  };
-
-  Transform.prototype.rotateZ = function(theta) {
-    this.matrix_ =
-        multiplyAffine(makeRotateAffineZ(theta), this.matrix_);
-  };
-  Transform.prototype.rotateZPre = function(theta) {
-    this.matrix_ =
-        multiplyAffine(this.matrix_, makeRotateAffineZ(theta));
-  };
-
-  Transform.prototype.translate = function(dx, dy, dz) {
-    this.matrix_ =
-        multiplyAffine(makeTranslateAffine(dx, dy, dz), this.matrix_);
-  };
-  Transform.prototype.translatePre = function(dx, dy, dz) {
-    this.matrix_ =
-        multiplyAffine(this.matrix_, makeTranslateAffine(dx, dy, dz));
-  };
-
-  Transform.prototype.scale = function(sx, sy, sz) {
-    this.matrix_ =
-        multiplyAffine(makeScaleAffine(sx, sy, sz), this.matrix_);
-  };
-
-  Transform.prototype.scalePre = function(sx, sy, sz) {
-    this.matrix_ =
-        multiplyAffine(this.matrix_, makeScaleAffine(sx, sy, sz));
-  };
-
-  Transform.prototype.transformPoint = function(p) {
-    return transformPoint(this.matrix_, p);
-  };
-
-  Transform.prototype.multTransform = function(t) {
-    this.matrix_ = multiplyAffine(this.matrix_, t.matrix_);
-  };
-
-  Transform.prototype.setDCM = function(u, v, w) {
-    var m = this.matrix_;
-    m.e0 = u.x; m.e4 = u.y; m.e8 = u.z;
-    m.e1 = v.x; m.e5 = v.y; m.e9 = v.z;
-    m.e2 = w.x; m.e6 = w.y; m.e10 = w.z;
-  };
-
-  Transform.prototype.dup = function() {
-    // TODO(deanm): This should be better.
-    var tm = new Transform();
-    tm.matrix_ = dupAffine(this.matrix_);
-    return tm;
-  };
 
   // RGBA is our simple representation for colors.
   function RGBA(r, g, b, a) {
@@ -806,8 +802,8 @@ Pre3d = (function() {
     var quad_callback = this.quad_callback;
 
     // Our vertex transformation matrix.
-    var t = multiplyAffine(this.camera.transform.getMatrix(),
-                           this.transform.getMatrix());
+    var t = multiplyAffine(this.camera.transform.m,
+                           this.transform.m);
     // Our normal transformation matrix.
     var tn = transAdjoint(t);
 
@@ -889,7 +885,7 @@ Pre3d = (function() {
         fill_rgba: this.fill_rgba,
         stroke_rgba: this.stroke_rgba,
         normal1_rgba: this.normal1_rgba,
-        normal2_rgba: this.normal2_rgba,
+        normal2_rgba: this.normal2_rgba
       };
 
       this.buffered_quads_.push(obj);
@@ -1027,8 +1023,8 @@ Pre3d = (function() {
     var ctx = this.ctx;
     var opts = opts || { };
 
-    var t = multiplyAffine(this.camera.transform.getMatrix(),
-                           this.transform.getMatrix());
+    var t = multiplyAffine(this.camera.transform.m,
+                           this.transform.m);
 
     var screen_points = this.projectPointsToCanvas(
         transformPoints(t, path.points));
@@ -1067,6 +1063,7 @@ Pre3d = (function() {
 
   return {
     RGBA: RGBA,
+    AffineMatrix: AffineMatrix,
     Transform: Transform,
     QuadFace: QuadFace,
     Shape: Shape,
@@ -1091,7 +1088,7 @@ Pre3d = (function() {
       unitVector3d: unitVector3d,
       linearInterpolate: linearInterpolate,
       linearInterpolatePoints3d: linearInterpolatePoints3d,
-      averagePoints: averagePoints,
-    },
+      averagePoints: averagePoints
+    }
   };
 })();

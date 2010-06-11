@@ -94,7 +94,7 @@ DemoUtils = (function() {
       first_event: true,
       is_clicking: false,
       last_x: 0,
-      last_y: 0,
+      last_y: 0
     };
 
     function relXY(e) {
@@ -256,6 +256,6 @@ DemoUtils = (function() {
     Ticker: Ticker,
     registerMouseListener: registerMouseListener,
     autoCamera: autoCamera,
-    ToggleToolbar: ToggleToolbar,
+    ToggleToolbar: ToggleToolbar
   };
 })();
