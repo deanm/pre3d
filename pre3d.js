@@ -76,7 +76,7 @@
 // someMethod is duplicated on the function so that the name of the function
 // is not anonymous, and it can be easier to debug and profile.
 
-Pre3d = (function() {
+var Pre3d = (function() {
 
   // 2D and 3D point / vector / matrix math.  Points and vectors are expected
   // to have an x, y and z (if 3d) property.  It is important to be consistent
@@ -1021,7 +1021,7 @@ Pre3d = (function() {
   // properties you want (stroke color, etc).  The drawing happens immediately.
   Renderer.prototype.drawPath = function drawPath(path, opts) {
     var ctx = this.ctx;
-    var opts = opts || { };
+    opts = opts || { };
 
     var t = multiplyAffine(this.camera.transform.m,
                            this.transform.m);

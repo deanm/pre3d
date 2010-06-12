@@ -22,7 +22,7 @@
 // mostly consists of UI helpers, like a toolbar for toggling modes, mouse
 // and camera handling, etc.
 
-DemoUtils = (function() {
+var DemoUtils = (function() {
 
   function min(a, b) {
     if (a < b) return a;
