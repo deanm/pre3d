@@ -191,7 +191,7 @@ DemoUtils = (function() {
   //   Mouse + ctrl -> pan x / y.
   //   Mouse + shift -> pan z.
   //   Mouse + ctrl + shift -> adjust focal length.
-  function autoCamera(renderer, ix, iy, iz, tx, ty, tz, draw_callback) {
+  function autoCamera(renderer, ix, iy, iz, tx, ty, tz, draw_callback, opts) {
     var camera_state = {
       rotate_x: tx,
       rotate_y: ty,
@@ -200,6 +200,8 @@ DemoUtils = (function() {
       y: iy,
       z: iz
     };
+
+    opts = opts !== undefined ? opts : { };
 
     function set_camera() {
       var ct = renderer.camera.transform;
@@ -222,6 +224,13 @@ DemoUtils = (function() {
             renderer.camera.focal_length + (info.delta_y * 0.01));
       } else if (info.shift) {
         camera_state.z += info.delta_y * 0.01;
+        if (opts.zAxisLimit !== undefined && camera_state.z > opts.zAxisLimit) {
+          camera_state.z = opts.zAxisLimit;
+          // TODO(deanm): This still does a redraw even though maybe the camera
+          // didn't actually move (camera_state.z was the same before/after).
+          // Since this is user interaction I'm not going to worry about it now.
+          // TODO(deanm): This only limits in one direction.
+        }
       } else if (info.ctrl) {
         camera_state.x -= info.delta_x * 0.01;
         camera_state.y -= info.delta_y * 0.01;
@@ -241,19 +250,24 @@ DemoUtils = (function() {
     }
 
     registerMouseListener(renderer.canvas, handleCameraMouse);
-    registerMouseWheelListener(renderer.canvas, function(delta_y) {
-      // Create a fake info to act as if shift + drag happened.
-      var fake_info = {
-        is_clicking: true,
-        canvas_x: null,
-        canvas_y: null,
-        delta_x: 0,
-        delta_y: delta_y * 30,
-        shift: true,
-        ctrl: false
-      };
-      handleCameraMouse(fake_info);
-    });
+
+    if (opts.panZOnMouseWheel === true) {
+      var wheel_scale = opts.panZOnMouseWheelScale !== undefined ?
+                          opts.panZOnMouseWheelScale : 30;
+      registerMouseWheelListener(renderer.canvas, function(delta_y) {
+        // Create a fake info to act as if shift + drag happened.
+        var fake_info = {
+          is_clicking: true,
+          canvas_x: null,
+          canvas_y: null,
+          delta_x: 0,
+          delta_y: delta_y * wheel_scale,
+          shift: true,
+          ctrl: false
+        };
+        handleCameraMouse(fake_info);
+      });
+    }
 
     // Set up the initial camera.
     set_camera();
