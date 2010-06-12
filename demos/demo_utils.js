@@ -171,6 +171,21 @@ DemoUtils = (function() {
     }, false);
   }
 
+  // Register and translate mouse wheel messages across browsers.
+  function registerMouseWheelListener(canvas, listener) {
+    function handler(e) {
+      // http://www.switchonthecode.com/tutorials/javascript-tutorial-the-scroll-wheel
+      listener(e.detail ? -e.detail : e.wheelDelta/40);
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+    }
+    // Register on both mousewheel and DOMMouseScroll.  Hopefully a browser
+    // only fires on one and not both.
+    canvas.addEventListener('DOMMouseScroll', handler, false);
+    canvas.addEventListener('mousewheel', handler, false);
+  }
+
   // Register mouse handlers to automatically handle camera:
   //   Mouse -> rotate around origin x and y axis.
   //   Mouse + ctrl -> pan x / y.
@@ -198,7 +213,7 @@ DemoUtils = (function() {
     // We debounce fast mouse movements so we don't paint a million times.
     var cur_pending = null;
 
-    registerMouseListener(renderer.canvas, function(info) {
+    function handleCameraMouse(info) {
       if (!info.is_clicking)
         return;
 
@@ -223,6 +238,21 @@ DemoUtils = (function() {
         set_camera();
         draw_callback();
       }, 0);
+    }
+
+    registerMouseListener(renderer.canvas, handleCameraMouse);
+    registerMouseWheelListener(renderer.canvas, function(delta_y) {
+      // Create a fake info to act as if shift + drag happened.
+      var fake_info = {
+        is_clicking: true,
+        canvas_x: null,
+        canvas_y: null,
+        delta_x: 0,
+        delta_y: delta_y * 30,
+        shift: true,
+        ctrl: false
+      };
+      handleCameraMouse(fake_info);
     });
 
     // Set up the initial camera.
