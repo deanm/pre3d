@@ -119,14 +119,23 @@ DemoUtils = (function() {
       state.is_clicking = true;
       state.last_x = rel.x;
       state.last_y = rel.y
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
     }, false);
 
     canvas.addEventListener('mouseup', function(e) {
       state.is_clicking = false;
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
     }, false);
 
     canvas.addEventListener('mouseout', function(e) {
       state.is_clicking = false;
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
     }, false);
 
     canvas.addEventListener('mousemove', function(e) {
@@ -142,20 +151,23 @@ DemoUtils = (function() {
       // We need one event to get calibrated.
       if (state.first_event) {
         state.first_event = false;
-        return;
+      } else {
+        var info = {
+          is_clicking: state.is_clicking,
+          canvas_x: state.last_x,
+          canvas_y: state.last_y,
+          delta_x: delta_x,
+          delta_y: delta_y,
+          shift: e.shiftKey,
+          ctrl: e.ctrlKey
+        };
+
+        listener(info);
       }
 
-      var info = {
-        is_clicking: state.is_clicking,
-        canvas_x: state.last_x,
-        canvas_y: state.last_y,
-        delta_x: delta_x,
-        delta_y: delta_y,
-        shift: e.shiftKey,
-        ctrl: e.ctrlKey
-      };
-
-      listener(info);
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
     }, false);
   }
 
