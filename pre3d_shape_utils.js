@@ -99,6 +99,8 @@ Pre3d.ShapeUtils = (function() {
       qf.normal1 = n1;
       qf.normal2 = n2;
     }
+
+    return shape;
   }
 
   // Convert any quad faces into two triangle faces.  After triangulation,
@@ -119,6 +121,7 @@ Pre3d.ShapeUtils = (function() {
       quads.push(newtri);
     }
     rebuildMeta(shape);
+    return shape;
   }
 
   // Call |func| for each face of |shape|.  The callback |func| should return
@@ -132,7 +135,17 @@ Pre3d.ShapeUtils = (function() {
       if (func(quads[i], i, this) === true)
         break;
     }
-  };
+    return shape;
+  }
+
+  function forEachVertex(shape, func) {
+    var vertices = this.vertices;
+    for (var i = 0, il = vertices.length; i < il; ++i) {
+      if (func(vertices[i], i, this) === true)
+        break;
+    }
+    return shape;
+  }
 
   function makePlane(p1, p2, p3, p4) {
     var s = new Pre3d.Shape();
@@ -181,7 +194,6 @@ Pre3d.ShapeUtils = (function() {
   function makeCube(whd) {
     return makeBox(whd, whd, whd);
   }
-
 
   function makeBoxWithHole(w, h, d, hw, hh) {
     var s = new Pre3d.Shape();
@@ -278,7 +290,6 @@ Pre3d.ShapeUtils = (function() {
     ];
 
     rebuildMeta(s);
-
     return s;
   }
 
@@ -362,6 +373,30 @@ Pre3d.ShapeUtils = (function() {
     return s;
   }
 
+  function makeOctahedron() {
+    var s = new Pre3d.Shape();
+    s.vertices = [
+     {x: -1, y:  0, z:  0},  // 0
+     {x:  0, y:  0, z:  1},  // 1
+     {x:  1, y:  0, z:  0},  // 2
+     {x:  0, y:  0, z: -1},  // 3
+     {x:  0, y:  1, z:  0},  // 4
+     {x:  0, y: -1, z:  0}   // 5
+    ];
+    // Top 4 triangles: 5 0 1, 5 1 2, 5 2 3, 5 3 0
+    // Bottom 4 triangles: 0 5 1, 1 5 2, 2 5 3, 3 5 0
+    quads = Array(8);
+    for (var i = 0; i < 4; ++i) {
+      var i2 = (i + 1) & 3;
+      quads[i*2] = new Pre3d.QuadFace(4, i, i2, null);
+      quads[i*2+1] = new Pre3d.QuadFace(i, 5, i2, null);
+    }
+
+    s.quads = quads;
+    Pre3d.ShapeUtils.rebuildMeta(s);
+    return s;
+  }
+
   // Smooth a Shape by averaging the vertices / faces.  This is something like
   // Catmull-Clark, but without the proper weighting.  The |m| argument is the
   // amount to smooth, between 0 and 1, 0 being no smoothing.
@@ -421,6 +456,7 @@ Pre3d.ShapeUtils = (function() {
     shape.vertices = new_ps;
 
     rebuildMeta(shape);
+    return shape;
   }
 
   // Divide each face of a Shape into 4 equal new faces.
@@ -488,6 +524,7 @@ Pre3d.ShapeUtils = (function() {
     }
 
     rebuildMeta(shape);
+    return shape;
   }
 
   // The Extruder implements extruding faces of a Shape.  The class mostly
@@ -515,7 +552,7 @@ Pre3d.ShapeUtils = (function() {
     // values, having them in a matrix is not helpful.
     this.scale = {x: 1, y: 1, z: 1};
     this.rotate = {x: 0, y: 0, z: 0};
-  };
+  }
 
   // Selection APIs, control which faces are extruded.
   Extruder.prototype.selectAll = function() {
