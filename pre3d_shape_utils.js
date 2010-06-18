@@ -75,7 +75,7 @@ Pre3d.ShapeUtils = (function() {
       var qf = quads[i];
 
       var centroid;
-      var n1, n2, na;
+      var n1, n2;
 
       var vert0 = vertices[qf.i0];
       var vert1 = vertices[qf.i1];
@@ -85,13 +85,12 @@ Pre3d.ShapeUtils = (function() {
       var n1 = crossProduct(vec01, vec02);
 
       if (qf.isTriangle()) {
-        n2 = na = n1;
+        n2 = n1;
         centroid = averagePoints([vert0, vert1, vert2]);
       } else {
         var vert3 = vertices[qf.i3];
         var vec03 = subPoints3d(vert3, vert0);
         n2 = crossProduct(vec02, vec03);
-        na = averagePoints2(n1, n2);
         centroid = averagePoints([vert0, vert1, vert2, vert3]);
       }
 
@@ -130,18 +129,18 @@ Pre3d.ShapeUtils = (function() {
   //     return false;
   //   });
   function forEachFace(shape, func) {
-    var quads = this.quads;
+    var quads = shape.quads;
     for (var i = 0, il = quads.length; i < il; ++i) {
-      if (func(quads[i], i, this) === true)
+      if (func(quads[i], i, shape) === true)
         break;
     }
     return shape;
   }
 
   function forEachVertex(shape, func) {
-    var vertices = this.vertices;
+    var vertices = shape.vertices;
     for (var i = 0, il = vertices.length; i < il; ++i) {
-      if (func(vertices[i], i, this) === true)
+      if (func(vertices[i], i, shape) === true)
         break;
     }
     return shape;
@@ -459,6 +458,16 @@ Pre3d.ShapeUtils = (function() {
     return shape;
   }
 
+  // Small utility function like Array.prototype.map.  Return a new array
+  // based on the result of the function on a current array.
+  function arrayMap(arr, func) {
+    var out = Array(arr.length);
+    for (var i = 0, il = arr.length; i < il; ++i) {
+      out[i] = func(arr[i], i, arr);
+    }
+    return out;
+  }
+
   // Divide each face of a Shape into 4 equal new faces.
   // TODO(deanm): Better document, doesn't support triangles, etc.
   function linearSubdivide(shape) {
@@ -499,12 +508,11 @@ Pre3d.ShapeUtils = (function() {
         var ps = ni[j];
         var key = ps.join('-');
         var centroid_index = share_points[key];
-        if (centroid_index == null) {  // hasn't been seen before
+        if (centroid_index === undefined) {  // hasn't been seen before
           centroid_index = shape.vertices.length;
-          // TODO(deanm): Remove use of Array.prototype.map.
           var s = shape;
-          shape.vertices.push(
-              averagePoints(ps.map(function(x) { return s.vertices[x]; })));
+          shape.vertices.push(averagePoints(
+              arrayMap(ps, function(x) { return s.vertices[x]; })));
           share_points[key] = centroid_index;
         }
 
@@ -516,6 +524,70 @@ Pre3d.ShapeUtils = (function() {
       var q1 = new Pre3d.QuadFace(ni[0],    i1, ni[1], ni[4]);
       var q2 = new Pre3d.QuadFace(ni[4], ni[1],    i2, ni[2]);
       var q3 = new Pre3d.QuadFace(ni[3], ni[4], ni[2],    i3);
+
+      shape.quads[i] = q0;
+      shape.quads.push(q1);
+      shape.quads.push(q2);
+      shape.quads.push(q3);
+    }
+
+    rebuildMeta(shape);
+    return shape;
+  }
+
+  // Divide each triangle of a Shape into 4 new triangle faces.  This is done
+  // by taking the mid point of each edge, and creating 4 new triangles.  You
+  // can visualize it by inscribing a new upside-down triangle within the
+  // current triangle, which then defines 4 new sub-triangles.
+  function linearSubdivideTri(shape) {
+    var num_tris = shape.quads.length;
+    var share_points = { };
+
+    for (var i = 0; i < num_tris; ++i) {
+      var tri = shape.quads[i];
+
+      var i0 = tri.i0;
+      var i1 = tri.i1;
+      var i2 = tri.i2;
+
+      var p0 = shape.vertices[i0];
+      var p1 = shape.vertices[i1];
+      var p2 = shape.vertices[i2];
+
+      //     p0                 p0
+      //              ->      n0  n2
+      // p1      p2         p1  n1  p2
+
+      // We end up with an array of vertex indices of the centroids of each
+      // side of the triangle.  We start with the vertex indices that should be
+      // averaged.  We cache centroids to make sure that we share vertices
+      // instead of creating two on top of each other.
+      var ni = [
+        [i0, i1].sort(),
+        [i1, i2].sort(),
+        [i2, i0].sort(),
+      ];
+
+      for (var j = 0, jl = ni.length; j < jl; ++j) {
+        var ps = ni[j];
+        var key = ps.join('-');
+        var centroid_index = share_points[key];
+        if (centroid_index === undefined) {  // hasn't been seen before
+          centroid_index = shape.vertices.length;
+          var s = shape;
+          shape.vertices.push(averagePoints(
+              arrayMap(ps, function(x) { return s.vertices[x]; })));
+          share_points[key] = centroid_index;
+        }
+
+        ni[j] = centroid_index;
+      }
+
+      // New triangles ...
+      var q0 = new Pre3d.QuadFace(   i0, ni[0], ni[2], null);
+      var q1 = new Pre3d.QuadFace(ni[0],    i1, ni[1], null);
+      var q2 = new Pre3d.QuadFace(ni[2], ni[1],    i2, null);
+      var q3 = new Pre3d.QuadFace(ni[0], ni[1], ni[2], null);
 
       shape.quads[i] = q0;
       shape.quads.push(q1);
@@ -718,6 +790,7 @@ Pre3d.ShapeUtils = (function() {
 
     averageSmooth: averageSmooth,
     linearSubdivide: linearSubdivide,
+    linearSubdivideTri: linearSubdivideTri,
 
     Extruder: Extruder
   };
