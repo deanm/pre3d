@@ -485,6 +485,7 @@ var Pre3d = (function() {
   // the data up to date, QuadFace stores a pre-calculated centroid and two
   // normals (two triangles in a quad).  This is an optimization for rendering
   // and procedural operations, and you must set them correctly.
+  // NOTE: The front of a QuadFace has vertices in counter-clockwise order.
   function QuadFace(i0, i1, i2, i3) {
     this.i0 = i0;
     this.i1 = i1;
