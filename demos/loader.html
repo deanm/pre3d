@@ -26,12 +26,17 @@
 <script src="demo_utils.js"></script>
 <script>
 window.addEventListener('load', function() {
-  var paths = document.location.hash.substr(1).split(',');
-  for (var i = 0, il = paths.length; i < il; ++i) {
-    var path = paths[i];
-    var script = document.createElement('script');
-    script.src = './' + path;
-    document.body.appendChild(script);
+  var hash = document.location.hash.substr(1);
+  if (hash.length === 0) {
+    document.location = '../';  // Redirect to the pre3d page.
+  } else {
+    var paths = hash.split(',');
+    for (var i = 0, il = paths.length; i < il; ++i) {
+      var path = paths[i];
+      var script = document.createElement('script');
+      script.src = './' + path;
+      document.body.appendChild(script);
+    }
   }
 }, false);
 </script>
