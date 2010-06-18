@@ -707,12 +707,14 @@ Pre3d.ShapeUtils = (function() {
     rebuildMeta: rebuildMeta,
     triangulate: triangulate,
     forEachFace: forEachFace,
+    forEachVertex: forEachVertex,
 
     makePlane: makePlane,
     makeCube: makeCube,
     makeBox: makeBox,
     makeBoxWithHole: makeBoxWithHole,
     makeSphere: makeSphere,
+    makeOctahedron: makeOctahedron,
 
     averageSmooth: averageSmooth,
     linearSubdivide: linearSubdivide,
