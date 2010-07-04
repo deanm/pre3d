@@ -292,7 +292,7 @@ Pre3d.ShapeUtils = (function() {
     return s;
   }
 
-  // Tessellate a sphere.  There will be |tess_y| + 2 vertices along the Y-axis
+  // Tessellate a spherical parametric equation.
   // (two extras are for zenith and azimuth).  There will be |tess_x| vertices
   // along the X-axis.  It is centered on the Y-axis.  It has a radius |r|.
   // The implementation is probably still a bit convulted.  We just handle the
@@ -300,8 +300,7 @@ Pre3d.ShapeUtils = (function() {
   // them to share a vertex anyway.  The math is pretty much standard spherical
   // coordinates, except that we map {x, y, z} -> {z, x, y}.  |tess_x| is phi,
   // and |tess_y| is theta.
-  // TODO(deanm): This code could definitely be more efficent.
-  function makeSphere(r, tess_x, tess_y) {
+  function makeSphericalShape(f, tess_x, tess_y) {
     // TODO(deanm): Preallocate the arrays to the final size.
     var vertices = [ ];
     var quads = [ ];
@@ -314,15 +313,8 @@ Pre3d.ShapeUtils = (function() {
     for (var i = 0, theta = theta_step;
          i < tess_y;
          ++i, theta += theta_step) {  // theta
-      var sin_theta = Math.sin(theta);
-      var cos_theta = Math.cos(theta);
       for (var j = 0; j < tess_x; ++j) {  // phi
-        var phi = phi_step * j;
-        vertices.push({
-          x: r * sin_theta * Math.sin(phi),
-          y: r * cos_theta,
-          z: r * sin_theta * Math.cos(phi)
-        });
+        vertices.push(f(theta, phi_step * j));
       }
     }
 
@@ -345,8 +337,8 @@ Pre3d.ShapeUtils = (function() {
     var last_row = vertices.length - tess_x;
     var top_p_i = vertices.length;
     var bot_p_i = top_p_i + 1;
-    vertices.push({x: 0, y:  r, z: 0});
-    vertices.push({x: 0, y: -r, z: 0});
+    vertices.push(f(0, 0));
+    vertices.push(f(Math.PI, 0));
 
     for (var i = 0; i < tess_x; ++i) {
       // Top triangles...
@@ -394,6 +386,25 @@ Pre3d.ShapeUtils = (function() {
     s.quads = quads;
     Pre3d.ShapeUtils.rebuildMeta(s);
     return s;
+  }
+
+  // Tessellate a sphere.  There will be |tess_y| + 2 vertices along the Y-axis
+  // (two extras are for zenith and azimuth).  There will be |tess_x| vertices
+  // along the X-axis.  It is centered on the Y-axis.  It has a radius |r|.
+  // The implementation is probably still a bit convulted.  We just handle the
+  // middle points like a grid, and special case zenith/aximuth, since we want
+  // them to share a vertex anyway.  The math is pretty much standard spherical
+  // coordinates, except that we map {x, y, z} -> {z, x, y}.  |tess_x| is phi,
+  // and |tess_y| is theta.
+  // TODO(deanm): This code could definitely be more efficent.
+  function makeSphere(r, tess_x, tess_y) {
+    return makeSphericalShape(function(theta, phi) {
+        return {
+          x: r * Math.sin(theta) * Math.sin(phi),
+          y: r * Math.cos(theta),
+          z: r * Math.sin(theta) * Math.cos(phi)
+        };
+    }, tess_x, tess_y);
   }
 
   // Smooth a Shape by averaging the vertices / faces.  This is something like
@@ -785,6 +796,7 @@ Pre3d.ShapeUtils = (function() {
     makeCube: makeCube,
     makeBox: makeBox,
     makeBoxWithHole: makeBoxWithHole,
+    makeSphericalShape: makeSphericalShape,
     makeSphere: makeSphere,
     makeOctahedron: makeOctahedron,
 
