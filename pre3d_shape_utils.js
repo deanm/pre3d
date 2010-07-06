@@ -610,6 +610,31 @@ Pre3d.ShapeUtils = (function() {
     return shape;
   }
 
+  // Detach all of the faces from each other.  Basically this just duplicates
+  // all of the vertices for each face, so a vertex is not shared across faces.
+  function explodeFaces(shape) {
+    var quads = shape.quads;
+    var num_quads = quads.length;
+    var verts = shape.vertices;
+    var new_verts = [ ];
+    for (var i = 0; i < num_quads; ++i) {
+      var q = quads[i];
+      var pos = new_verts.length;
+      new_verts.push({x: verts[q.i0].x, y: verts[q.i0].y, z: verts[q.i0].z});
+      new_verts.push({x: verts[q.i1].x, y: verts[q.i1].y, z: verts[q.i1].z});
+      new_verts.push({x: verts[q.i2].x, y: verts[q.i2].y, z: verts[q.i2].z});
+      q.i0 = pos;
+      q.i1 = pos + 1;
+      q.i2 = pos + 2;
+      if (q.isTriangle() !== true) {
+        new_verts.push({x: verts[q.i3].x, y: verts[q.i3].y, z: verts[q.i3].z});
+        q.i3 = pos + 3;
+      }
+    }
+    shape.vertices = new_verts;
+    return shape;
+  }
+
   // The Extruder implements extruding faces of a Shape.  The class mostly
   // exists as a place to hold all of the extrusion parameters.  The properties
   // are meant to be private, please use the getter/setter APIs.
@@ -803,6 +828,7 @@ Pre3d.ShapeUtils = (function() {
     averageSmooth: averageSmooth,
     linearSubdivide: linearSubdivide,
     linearSubdivideTri: linearSubdivideTri,
+    explodeFaces: explodeFaces,
 
     Extruder: Extruder
   };
