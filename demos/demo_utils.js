@@ -86,6 +86,61 @@ var DemoUtils = (function() {
     this.step_ = -this.step_;
   };
 
+  function registerTouchListener(canvas, listener) {
+    var state = {
+      first_event: true,
+      is_clicking: false,
+      last_x: 0,
+      last_y: 0
+    };
+
+    canvas.addEventListener('touchstart', function(e) {
+      state.is_clicking = true;
+      state.last_x = e.touches[0].clientX;
+      state.last_y = e.touches[0].clientY;
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
+    }, false);
+
+    canvas.addEventListener('touchend', function(e) {
+      state.is_clicking = false;
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
+    }, false);
+
+    canvas.addEventListener('touchmove', function(e) {
+      var delta_x = state.last_x - e.touches[0].clientX;
+      var delta_y = state.last_y - e.touches[0].clientY;
+
+      state.last_x = e.touches[0].clientX;
+      state.last_y = e.touches[0].clientY;
+
+      // We need one event to get calibrated.
+      if (state.first_event) {
+        state.first_event = false;
+      } else {
+        var info = {
+          is_clicking: state.is_clicking,
+          canvas_x: state.last_x,
+          canvas_y: state.last_y,
+          delta_x: delta_x,
+          delta_y: delta_y,
+          touch: true,
+          shift: false,
+          ctrl: false
+        };
+
+        listener(info);
+      }
+
+      // Event was handled, don't take default action.
+      e.preventDefault();
+      return false;
+    }, false);
+  }
+
   // Registers some mouse listeners on a <canvas> element, to help you with
   // things like dragging, clicking, etc.  Your callback will get called on
   // any mouse movement, with info / state about the mouse.
@@ -245,11 +300,17 @@ var DemoUtils = (function() {
       cur_pending = setTimeout(function() {
         cur_pending = null;
         set_camera();
-        draw_callback();
+        if (info.touch === true) {
+          opts.touchDrawCallback(false);
+        } else {
+          draw_callback();
+        }
       }, 0);
     }
 
     registerMouseListener(renderer.canvas, handleCameraMouse);
+    if (opts.touchDrawCallback !== undefined)
+      registerTouchListener(renderer.canvas, handleCameraMouse);
 
     if (opts.panZOnMouseWheel === true) {
       var wheel_scale = opts.panZOnMouseWheelScale !== undefined ?
