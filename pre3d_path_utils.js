@@ -23,6 +23,17 @@
 
 Pre3d.PathUtils = (function() {
 
+  // Make a line (a straight cubic bezier curve) from |p0| to |p1|.
+  function makeLine(p0, p1) {
+    var path = new Pre3d.Path();
+    path.points = [
+      {x: p0.x, y: p0.y, z: p0.z},
+      {x: p1.x, y: p1.y, z: p1.z}];
+    path.curves = [new Pre3d.Curve(1, 1, 1)];
+    path.starting_point = 0;
+    return path;
+  }
+
   // Make a circle (consisting of two cublic splines) with points
   // (0, 0, 0) to (0, 1, 0);
   // http://www.whizkidtech.redprince.net/bezier/circle/
@@ -87,6 +98,7 @@ Pre3d.PathUtils = (function() {
   }
 
   return {
+    makeLine: makeLine,
     makeCircle: makeCircle,
     makeSpiral: makeSpiral,
     fitQuadraticToPoints: fitQuadraticToPoints
