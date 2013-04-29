@@ -21,6 +21,9 @@ documentation.  They should give you an idea of how to use the engine, and what
 it is capable of. demos/demo_utils.js implements some UI helpers, like moving
 camera when the canvas element is dragged on, etc.
 
+Update: Added utilities for generating y=f(x,y) graphs, wither from function or
+empiric data. See demos/sci_graph.html for usage (Ron Peleg)
+
 License:
   The engine code is free to use under the BSD license.  The examples / demos
   are (c) Dean McNamee, All rights reserved.
